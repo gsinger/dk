@@ -6,19 +6,8 @@ use std::env;
 use std::path::Path;
 use std::process::Command;
 
-// ----------------- Module Ports -----------------
-mod ports {
-    pub const PORTAINER: u16 = 25002;
-    pub const DOKU: u16 = 25004;
-    pub const KROKI: u16 = 25100;
-    pub const EXCALIDRAW: u16 = 25101;
-    pub const CADVISOR: u16 = 25005;
-    pub const DOZZLE: u16 = 25006;
-    pub const DBEAVER: u16 = 25007;
-    pub const DASHY: u16 = 8080;
-    pub const GLANCES: u16 = 61208;
-    pub const SQLSERVER: u16 = 1433;
-}
+mod ports;
+
 
 // ----------------- Fonctions d'affichage -----------------
 fn print_info(info: &str) {
@@ -93,7 +82,7 @@ mod image_helper {
         }
 
         // Construction du nom de fichier de sauvegarde
-        let filename = format!("{}.{}.tar.gz", name, tag).replace("/", "_");
+        let filename = format!("{name}.{tag}.tar.gz").replace("/", "_");
         let root_path = env::current_dir().expect("Impossible d'obtenir le répertoire courant");
         let filepath = root_path.join(&filename);
         if filepath.exists() {
@@ -273,10 +262,10 @@ mod container_helper {
     use colored::*;
 
     pub fn usage() {
-        print_info("CONTAINERS:");
-        println!("{}","  . dk ps                   : Show state of the containers".yellow());
-        println!("{}","  . dk rm      <container*>  : Remove container(s)".yellow());
-        println!("{}","  . dk shell   <container>   : Run a bash shell into the container".yellow());
+        println!("{}","CONTAINERS:".cyan());
+        println!("{}                {}","  . dk ps".yellow(),": Show state of the containers".white());
+        println!("{} {}  {}","  . dk rm ".yellow(), "<container*>".bright_blue(), ": Remove container(s)".white());
+        println!("{} {} {}","  . dk shell".yellow(),"<container>".bright_blue(),": Run a bash shell into the container".white());
     }
 
     pub fn get_containers() -> Vec<Vec<String>> {
@@ -396,7 +385,7 @@ mod volume_helper {
 // ----------------- Module SystemHelper -----------------
 mod system_helper {
     use super::{container_helper, image_helper, volume_helper, print_and_run, print_error, print_info};
-
+    use colored::*;
     pub fn usage() {
         print_info("SYSTEM:");
         println!(
@@ -450,8 +439,10 @@ mod system_helper {
 
 // ----------------- Module OtsHelper -----------------
 mod ots_helper {
-    use super::{container_helper, image_helper, print_and_run, print_error, print_info, ports};
+    use super::{image_helper, print_and_run, print_error, print_info, ports};
     use std::env;
+    use colored::*;
+    use crate::ports::ports::*;
 
     pub fn usage() {
         print_info("OTS:");
@@ -480,7 +471,7 @@ mod ots_helper {
                 "sqlserver" => {
                     let image = "mcr.microsoft.com/mssql/server:2022-latest";
                     image_helper::pull_image(image);
-                    print_info(&format!("Starting sqlserver (port={})", ports::SQLSERVER));
+                    print_info(&format!("Starting sqlserver (port={})", SQLSERVER));
                     print_and_run(&[
                         "docker",
                         "run",
@@ -490,7 +481,7 @@ mod ots_helper {
                         "-v",
                         "sqlserver_data:/var/opt/mssql",
                         "-p",
-                        &format!("{}:1433", ports::SQLSERVER),
+                        &format!("{}:1433", SQLSERVER),
                         "-e",
                         "ACCEPT_EULA=Y",
                         "-e",
@@ -503,7 +494,7 @@ mod ots_helper {
                 "dashy" => {
                     let image = "lissy93/dashy:latest";
                     image_helper::pull_image(image);
-                    print_info(&format!("Starting dashy (port={})", ports::DASHY));
+                    print_info(&format!("Starting dashy (port={})", DASHY));
                     let root_path = env::current_dir().unwrap();
                     let vol = format!("{}/dk-compose/dashy/config.yml", root_path.to_str().unwrap());
                     print_and_run(&[
@@ -526,7 +517,7 @@ mod ots_helper {
                 "portainer" => {
                     let image = "portainer/portainer-ce:latest";
                     image_helper::pull_image(image);
-                    print_info(&format!("Starting portainer (port={})", ports::PORTAINER));
+                    print_info(&format!("Starting portainer (port={})", PORTAINER));
                     print_and_run(&[
                         "docker",
                         "run",
@@ -534,7 +525,7 @@ mod ots_helper {
                         "--name",
                         "ots_portainer",
                         "-p",
-                        &format!("{}:9000", ports::PORTAINER),
+                        &format!("{}:9000", PORTAINER),
                         "-p",
                         "25003:9443",
                         "-v",
@@ -549,7 +540,7 @@ mod ots_helper {
                 "kroki" => {
                     let image = "yuzutech/kroki";
                     image_helper::pull_image(image);
-                    print_info(&format!("Starting kroki (http://localhost:{})", ports::KROKI));
+                    print_info(&format!("Starting kroki (http://localhost:{})", KROKI));
                     print_and_run(&[
                         "docker",
                         "run",
@@ -559,14 +550,14 @@ mod ots_helper {
                         "--restart",
                         "unless-stopped",
                         "-p",
-                        &format!("{}:8000", ports::KROKI),
+                        &format!("{}:8000", KROKI),
                         image,
                     ]);
                 }
                 "excalidraw" => {
                     let image = "excalidraw/excalidraw:latest";
                     image_helper::pull_image(image);
-                    print_info(&format!("Starting excalidraw (http://localhost:{})", ports::EXCALIDRAW));
+                    print_info(&format!("Starting excalidraw (http://localhost:{})", EXCALIDRAW));
                     print_and_run(&[
                         "docker",
                         "run",
@@ -576,7 +567,7 @@ mod ots_helper {
                         "--restart",
                         "unless-stopped",
                         "-p",
-                        &format!("{}:80", ports::EXCALIDRAW),
+                        &format!("{}:80", EXCALIDRAW),
                         image,
                     ]);
                 }
@@ -636,7 +627,7 @@ mod ots_helper {
                 "doku" => {
                     let image = "amerkurev/doku";
                     image_helper::pull_image(image);
-                    print_info(&format!("Starting doku (http://localhost:{})", ports::DOKU));
+                    print_info(&format!("Starting doku (http://localhost:{})", DOKU));
                     print_and_run(&[
                         "docker",
                         "run",
@@ -651,7 +642,7 @@ mod ots_helper {
                         "-v",
                         "/:/hostroot:ro",
                         "-p",
-                        &format!("{}:9090", ports::DOKU),
+                        &format!("{}:9090", DOKU),
                         image,
                     ]);
                 }
@@ -673,7 +664,7 @@ mod ots_helper {
                 "cadvisor" => {
                     let image = "gcr.io/cadvisor/cadvisor";
                     image_helper::pull_image(image);
-                    print_info(&format!("Starting cadvisor (http://localhost:{})", ports::CADVISOR));
+                    print_info(&format!("Starting cadvisor (http://localhost:{})", CADVISOR));
                     print_and_run(&[
                         "docker",
                         "run",
@@ -688,7 +679,7 @@ mod ots_helper {
                         "--restart",
                         "unless-stopped",
                         "-p",
-                        &format!("{}:8080", ports::CADVISOR),
+                        &format!("{}:8080", CADVISOR),
                         "-d",
                         "--name",
                         "ots_cadvisor",
@@ -698,7 +689,7 @@ mod ots_helper {
                 "dozzle" => {
                     let image = "amir20/dozzle";
                     image_helper::pull_image(image);
-                    print_info(&format!("Starting dozzle (http://localhost:{})", ports::DOZZLE));
+                    print_info(&format!("Starting dozzle (http://localhost:{})", DOZZLE));
                     print_and_run(&[
                         "docker",
                         "run",
@@ -710,7 +701,7 @@ mod ots_helper {
                         "--restart",
                         "unless-stopped",
                         "-p",
-                        &format!("{}:8080", ports::DOZZLE),
+                        &format!("{}:8080", DOZZLE),
                         image,
                     ]);
                 }
