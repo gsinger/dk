@@ -268,23 +268,15 @@ mod image_helper {
 
 // ----------------- Module ContainerHelper -----------------
 mod container_helper {
-    use super::{print_and_run, print_error, print_info};
+    use super::{print_and_run, print_info};
     use std::process::Command;
+    use colored::*;
 
     pub fn usage() {
         print_info("CONTAINERS:");
-        println!(
-            "{}",
-            "  . dk ps                   : Show state of the containers".yellow()
-        );
-        println!(
-            "{}",
-            "  . dk rm      <container*>  : Remove container(s)".yellow()
-        );
-        println!(
-            "{}",
-            "  . dk shell   <container>   : Run a bash shell into the container".yellow()
-        );
+        println!("{}","  . dk ps                   : Show state of the containers".yellow());
+        println!("{}","  . dk rm      <container*>  : Remove container(s)".yellow());
+        println!("{}","  . dk shell   <container>   : Run a bash shell into the container".yellow());
     }
 
     pub fn get_containers() -> Vec<Vec<String>> {
@@ -343,21 +335,13 @@ mod container_helper {
 mod volume_helper {
     use super::{print_and_run, print_error, print_info};
     use std::process::Command;
+    use colored::*;
 
     pub fn usage() {
         print_info("VOLUMES:");
-        println!(
-            "{}",
-            "  . dk vol                  : Show the list of volumes".yellow()
-        );
-        println!(
-            "{}",
-            "  . dk vol prune            : Delete all unused volumes".yellow()
-        );
-        println!(
-            "{}",
-            "  . dk vol rm <volume*>     : Remove specified volumes".yellow()
-        );
+        println!("{}","  . dk vol                  : Show the list of volumes".yellow());
+        println!("{}","  . dk vol prune            : Delete all unused volumes".yellow());
+        println!("{}","  . dk vol rm <volume*>     : Remove specified volumes".yellow());
     }
 
     pub fn get_volumes() -> Vec<Vec<String>> {
