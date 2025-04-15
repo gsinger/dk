@@ -9,27 +9,12 @@ use crate::dkutil::*;
 
 /// Affiche l'aide pour les commandes liées aux images.
 pub fn usage() {
-    print_info("IMAGES:");
-    println!(
-        "{}",
-        "  . dk im                   : Show the list of images".yellow()
-    );
-    println!(
-        "{}",
-        "  . dk im rm  <image*>      : Remove the specified images".yellow()
-    );
-    println!(
-        "{}",
-        " . dk im save <image*>     : Save the specified images".yellow()
-    );
-    println!(
-        "{}",
-        "  . dk im load <file*>      : Load the specified image files".yellow()
-    );
-    println!(
-        "{}",
-        "  . dk im scan <file*>      : Scan images for vulnerabilities".yellow()
-    );
+    println!("{}", "IMAGES:".cyan());
+    print_colored("(y) . dk im                (w): Show the list of images");
+    print_colored("(y) . dk im rm (b)<images*>   (w): Show the list of images");
+    print_colored("(y) . dk im save (b)<images*> (w): Save the specified images");
+    print_colored("(y) . dk im load (b)<file*>   (w): Load the specified image files");
+    print_colored("(y) . dk im scan (b)<file*>   (w): Scan images for vulnerabilities");
 }
 
 /// Tente de récupérer (ou tirer) une image.  
@@ -59,7 +44,7 @@ pub fn pull_image(image: &str) {
         print_and_run(&["docker", "pull", image]);
     }
     // Sauvegarde l'image pour de futurs usages
-    __save_one(name, tag, Some(root_path.to_str().unwrap()));
+    save_one(name, tag, Some(root_path.to_str().unwrap()));
 }
 
 /// Retourne true si l'image est déjà présente (recherche via `docker images`).
@@ -152,7 +137,7 @@ pub fn show() {
     table.printstd();
 }
 
-/// Traite la commande 'im' avec ses arguments.
+/// Handle the command 'im'
 pub fn cmd(arguments: &[String]) ->i32 {
     if arguments.is_empty() {
         show();
@@ -242,7 +227,7 @@ fn scan(filters: &[String]) {
 }
 
 /// Sauvegarde une image (fonction interne).
-fn __save_one(name: &str, tag: &str, path: Option<&str>) {
+fn save_one(name: &str, tag: &str, path: Option<&str>) {
     let full_image_name = format!("{}:{}", name, tag);
     let mut filename = format!("{}.{}.tar.gz", name, tag).replace("/", "_");
     print_info(&format!("saving image {} into {}", name, filename));

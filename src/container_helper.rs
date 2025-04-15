@@ -6,23 +6,10 @@ use crate::dkutil::*;
 
 pub fn usage() {
     println!("{}", "CONTAINERS:".cyan());
-    println!(
-        "{}                {}",
-        "  . dk ps".yellow(),
-        ": Show state of the containers".white()
-    );
-    println!(
-        "{} {}  {}",
-        "  . dk rm ".yellow(),
-        "<container*>".bright_blue(),
-        ": Remove container(s)".white()
-    );
-    println!(
-        "{} {} {}",
-        "  . dk shell".yellow(),
-        "<container>".bright_blue(),
-        ": Run a bash shell into the container".white()
-    );
+
+    print_colored("(y) . dk ps              (w): Show state of the containers");
+    print_colored("(y) . dk rm (b)<container*> (w): Remove container(s)");
+    print_colored("(y) . dk shell           (w): Run a bash shell into the container");
 }
 
 pub fn get_containers() -> Vec<Vec<String>> {
@@ -109,7 +96,7 @@ pub fn remove(filters: &[String]) -> i32 {
             print_error(&format!("Error removing container {}", f));    
         }
     }
-    return retcode;
+    return 0;
 }
 
 
