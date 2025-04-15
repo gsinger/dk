@@ -22,10 +22,10 @@ pub fn usage() {
     );
 }
 
-pub fn cmd(arguments: &[String]) {
+pub fn cmd(arguments: &[String]) ->i32 {
     if arguments.is_empty() {
         show();
-        return;
+        return 0;
     }
     let command = &arguments[0];
     match command.as_str() {
@@ -34,6 +34,8 @@ pub fn cmd(arguments: &[String]) {
         "size" => size(),
         _ => print_error("unknown command"),
     }
+    return 0;
+
 }
 
 pub fn show() {

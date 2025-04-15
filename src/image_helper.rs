@@ -153,10 +153,10 @@ pub fn show() {
 }
 
 /// Traite la commande 'im' avec ses arguments.
-pub fn cmd(arguments: &[String]) {
+pub fn cmd(arguments: &[String]) ->i32 {
     if arguments.is_empty() {
         show();
-        return;
+        return 1;
     }
     let command = &arguments[0];
     let args = &arguments[1..];
@@ -164,35 +164,37 @@ pub fn cmd(arguments: &[String]) {
         "rm" => {
             if args.is_empty() {
                 println!("Error: 'rm' command requires at least one image");
-                return;
+                return 1;
             }
             remove(args);
         }
         "save" => {
             if args.is_empty() {
                 println!("Error: 'save' command requires at least one image");
-                return;
+                return 1;
             }
             save(args);
         }
         "load" => {
             if args.is_empty() {
                 println!("Error: 'load' command requires at least one file");
-                return;
+                return 1;
             }
             load(args);
         }
         "scan" => {
             if args.is_empty() {
                 println!("Error: 'scan' command requires at least one image");
-                return;
+                return 1;
             }
             scan(args);
         }
         _ => {
             print_error("unknown command");
+            
         }
     }
+    return 0;
 }
 
 fn remove(filters: &[String]) {

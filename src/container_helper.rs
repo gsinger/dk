@@ -55,7 +55,7 @@ pub fn get_containers() -> Vec<Vec<String>> {
     table
 }
 
-pub fn show() {
+pub fn show()  {
     let containers = get_containers();
 
     let mut table = Table::new();
@@ -98,14 +98,24 @@ pub fn show() {
     table.printstd();
 }
 
-pub fn remove(filters: &[String]) {
+pub fn remove(filters: &[String]) -> i32 {
+    let mut retcode=0;
     for f  in filters {
         print_info(&format!("Removing container {}", f));
-        print_and_run(&["docker", "rm", "-f", f]);
+        let i= print_and_run(&["docker", "rm", "-f", f]);
+    
+        if i != 0 {
+            retcode = i;
+            print_error(&format!("Error removing container {}", f));    
+        }
     }
+    return retcode;
 }
 
-pub fn exec_shell(container: &str) {
+
+
+
+pub fn exec_shell(container: &str) -> i32 {
     print_info(&format!("Executing shell in container {}", container));
-    print_and_run(&["docker", "exec", "-it", container, "/bin/bash"]);
+    return print_and_run(&["docker", "exec", "-it", container, "/bin/bash"]);
 }

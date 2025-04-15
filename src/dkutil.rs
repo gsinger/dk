@@ -13,16 +13,22 @@ pub fn print_error(info: &str) {
 }
 
 /// Exécute une commande système et affiche la commande exécutée.
-pub fn print_and_run(cmd: &[&str]) {
+pub fn print_and_run(cmd: &[&str]) -> i32{
     let cmdstr = cmd.join(" ");
     print_info(&cmdstr);
     let status = Command::new(cmd[0])
         .args(&cmd[1..])
         .status()
-        .expect("Échec de l'exécution de la commande");
+        .expect("Failed to execute the command");
+    
+    let code = status.code().unwrap_or(0); 
+    
     if !status.success() {
-        print_error("La commande s'est terminée avec une erreur");
+        let msg = format!("Exit code : {}",code);
+        print_error(&msg);
     }
+    return code;
+
 }
 
 pub fn is_integer(s: &str) -> bool {

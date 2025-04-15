@@ -27,20 +27,21 @@ fn show_usage() {
 }
 
 // ----------------- Fonction main -----------------
-fn main() {
+fn main() ->() {
     let args: Vec<String> = env::args().collect();
     if args.len() == 1 {
         show_usage();
-        return;
+        std::process::exit(1);
     }
     let command = args[1].as_str();
     let arguments = &args[2..];
+    let mut exitcode=1;
     match command {
         "shell" => {
             if arguments.len() != 1 {
                 println!("Error: 'shell' command takes one argument");
             } else {
-                container_helper::exec_shell(&arguments[0]);
+                exitcode=container_helper::exec_shell(&arguments[0]);
             }
         }
         "ps" => {
@@ -48,6 +49,7 @@ fn main() {
                 println!("Error: 'ps' command does not take any arguments");
             } else {
                 container_helper::show();
+                exitcode=0;
             }
         }
         "rm" => {
@@ -55,13 +57,14 @@ fn main() {
                 println!("Error: 'rm' command requires at least one container");
             } else {
                 container_helper::remove(arguments);
+                exitcode=0;
             }
         }
         "trunclog" => {
             println!("'trunclog' not yet implemented");
         }
         "sys" => {
-            system_helper::cmd(arguments);
+            exitcode=system_helper::cmd(arguments);
         }
         "otsup" => {
             if arguments.is_empty() {
@@ -69,6 +72,7 @@ fn main() {
             } else {
                 ots_helper::up(arguments);
                 container_helper::show();
+                exitcode=0;
             }
         }
         "otsdown" => {
@@ -77,14 +81,21 @@ fn main() {
             } else {
                 ots_helper::down(arguments);
                 container_helper::show();
+                exitcode=0;
             }
         }
+        
         "vol" => {
             volume_helper::cmd(arguments);
+            exitcode=0;
         }
+        
         "im" => {
-            image_helper::cmd(arguments);
+            exitcode=image_helper::cmd(arguments);            
         }
+        
         _ => println!("Error: Unknown command '{}'", command),
     }
+
+    std::process::exit(exitcode);
 }
