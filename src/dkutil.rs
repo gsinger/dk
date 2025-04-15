@@ -1,11 +1,10 @@
-pub mod dkutil {
-
-    use std::process::Command;
-    use colored::*;
-    use regex::Regex;
 
 
- pub fn print_info(info: &str) {
+use colored::*;
+use regex::Regex;
+use std::process::Command;
+
+pub fn print_info(info: &str) {
     println!("-- {}", info.green());
 }
 
@@ -14,7 +13,7 @@ pub fn print_error(info: &str) {
 }
 
 /// Exécute une commande système et affiche la commande exécutée.
-fn print_and_run(cmd: &[&str]) {
+pub fn print_and_run(cmd: &[&str]) {
     let cmdstr = cmd.join(" ");
     print_info(&cmdstr);
     let status = Command::new(cmd[0])
@@ -25,7 +24,6 @@ fn print_and_run(cmd: &[&str]) {
         print_error("La commande s'est terminée avec une erreur");
     }
 }
-
 
 pub fn is_integer(s: &str) -> bool {
     let re = Regex::new(r"^[+-]?\d+$").unwrap();
@@ -40,4 +38,4 @@ pub fn is_valid_rank(v: &str, max: usize) -> bool {
         false
     }
 }
-}
+

@@ -1,21 +1,20 @@
-// main.rs
-
 use colored::*;
-use regex::Regex;
 use std::env;
-use std::path::Path;
-use std::process::Command;
 
-mod ports;
-mod image_helper;
-mod dkutil;
-
+pub mod container_helper;
+pub mod dkutil;
+pub mod image_helper;
+pub mod ots_helper;
+pub mod ports;
+pub mod volume_helper;
+pub mod system_helper;
 
 // ----------------- Module OtsHelper -----------------
 
 // ----------------- Affichage de l'aide générale -----------------
 fn show_usage() {
-    println!("{}", "dk version 4.4 - G. Singer 2018-2025".bright_magenta());
+    println!("{}",  "dk version 4.4 - G. Singer 2018-2025".bright_magenta() );
+    
     container_helper::usage();
     println!();
     image_helper::usage();
