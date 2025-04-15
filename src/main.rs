@@ -7,115 +7,14 @@ use std::path::Path;
 use std::process::Command;
 
 mod ports;
-
-
-// ----------------- Fonctions d'affichage -----------------
-fn print_info(info: &str) {
-    println!("-- {}", info.green());
-}
-
-fn print_error(info: &str) {
-    println!("-- {}", info.red());
-}
-
-/// Exécute une commande système et affiche la commande exécutée.
-fn print_and_run(cmd: &[&str]) {
-    let cmdstr = cmd.join(" ");
-    print_info(&cmdstr);
-    let status = Command::new(cmd[0])
-        .args(&cmd[1..])
-        .status()
-        .expect("Échec de l'exécution de la commande");
-    if !status.success() {
-        print_error("La commande s'est terminée avec une erreur");
-    }
-}
-
-// ----------------- Module Utilitaire -----------------
-mod util {
-    use regex::Regex;
-    pub fn is_integer(s: &str) -> bool {
-        let re = Regex::new(r"^[+-]?\d+$").unwrap();
-        re.is_match(s)
-    }
-
-    pub fn is_valid_rank(v: &str, max: usize) -> bool {
-        if is_integer(v) {
-            let rank: usize = v.parse().unwrap();
-            rank > 0 && rank <= max
-        } else {
-            false
-        }
-    }
-}
+mod image_helper;
+mod dkutil;
 
 // ----------------- Module ImageHelper -----------------
 
 
 // ----------------- Module ContainerHelper -----------------
-mod container_helper {
-    use super::{print_and_run, print_info};
-    use std::process::Command;
-    use colored::*;
 
-    pub fn usage() {
-        println!("{}","CONTAINERS:".cyan());
-        println!("{}                {}","  . dk ps".yellow(),": Show state of the containers".white());
-        println!("{} {}  {}","  . dk rm ".yellow(), "<container*>".bright_blue(), ": Remove container(s)".white());
-        println!("{} {} {}","  . dk shell".yellow(),"<container>".bright_blue(),": Run a bash shell into the container".white());
-    }
-
-    pub fn get_containers() -> Vec<Vec<String>> {
-        let output = Command::new("docker")
-            .args(&["ps", "-a", "--format", "{{.Names}}|{{.ID}}|{{.Image}}|{{.Status}}"])
-            .output()
-            .expect("Échec de 'docker ps'");
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        let mut table = Vec::new();
-        let mut index = 1;
-        for line in stdout.lines() {
-            let parts: Vec<&str> = line.split('|').collect();
-            if parts.len() < 4 {
-                continue;
-            }
-            table.push(vec![
-                index.to_string(),
-                parts[0].to_string(),
-                parts[1].to_string(),
-                parts[2].to_string(),
-                parts[3].to_string(),
-            ]);
-            index += 1;
-        }
-        table
-    }
-
-    pub fn show() {
-        let containers = get_containers();
-        println!(
-            "{:<5} {:<20} {:<15} {:<20} {:<30}",
-            "Index", "Name", "ID", "Image", "Status"
-        );
-        for row in containers {
-            println!(
-                "{:<5} {:<20} {:<15} {:<20} {:<30}",
-                row[0], row[1], row[2], row[3], row[4]
-            );
-        }
-    }
-
-    pub fn remove(filters: &[String]) {
-        for f in filters {
-            print_info(&format!("Removing container {}", f));
-            print_and_run(&["docker", "rm", "-f", f]);
-        }
-    }
-
-    pub fn exec_shell(container: &str) {
-        print_info(&format!("Executing shell in container {}", container));
-        print_and_run(&["docker", "exec", "-it", container, "/bin/bash"]);
-    }
-}
 
 // ----------------- Module VolumeHelper -----------------
 mod volume_helper {
@@ -181,7 +80,9 @@ mod volume_helper {
 
 // ----------------- Module SystemHelper -----------------
 mod system_helper {
-    use super::{container_helper, image_helper, volume_helper, print_and_run, print_error, print_info};
+    use super::{container_helper, volume_helper, print_and_run, print_error, print_info};
+    
+
     use colored::*;
     pub fn usage() {
         print_info("SYSTEM:");
@@ -214,7 +115,7 @@ mod system_helper {
     }
 
     pub fn show() {
-        image_helper::show();
+        crate::image_helper::show();
         println!();
         volume_helper::show();
         println!();
@@ -236,7 +137,7 @@ mod system_helper {
 
 // ----------------- Module OtsHelper -----------------
 mod ots_helper {
-    use super::{image_helper, print_and_run, print_error, print_info, ports};
+    use super::{print_and_run, print_error, print_info, ports};
     use std::env;
     use colored::*;
     use crate::ports::ports::*;

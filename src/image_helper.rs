@@ -1,13 +1,17 @@
+
+
 mod image_helper {
-    use super::{print_and_run, print_error, print_info};
+
     use std::env;
     use std::path::Path;
     use std::process::Command;
     use prettytable::{Table, Row, Cell, Attr, format,color};
+    use colored::*;
+    use dkutil::{print_info,print_and_run,print_error};
 
     /// Affiche l'aide pour les commandes liées aux images.
     pub fn usage() {
-        use colored::*;
+        
         print_info("IMAGES:");
         println!("{}","  . dk im                   : Show the list of images".yellow());
         println!("{}","  . dk im rm  <image*>      : Remove the specified images".yellow());
