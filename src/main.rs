@@ -9,24 +9,7 @@ pub mod ports;
 pub mod volume_helper;
 pub mod system_helper;
 
-// ----------------- Module OtsHelper -----------------
 
-// ----------------- Affichage de l'aide générale -----------------
-fn show_usage() {
-    println!("{}",  "dk version 4.4 - G. Singer 2018-2025".bright_magenta() );
-    
-    container_helper::usage();
-    println!();
-    image_helper::usage();
-    println!();
-    volume_helper::usage();
-    println!();
-    system_helper::usage();
-    println!();
-    ots_helper::usage();
-}
-
-// ----------------- Fonction main -----------------
 fn main() ->() {
     let args: Vec<String> = env::args().collect();
     if args.len() == 1 {
@@ -99,3 +82,19 @@ fn main() ->() {
 
     std::process::exit(exitcode);
 }
+
+
+fn show_usage() {
+    println!("{}",  "dk version 4.4 - G. Singer 2018-2025".bright_magenta() );
+    
+    container_helper::usage();
+    println!();
+    image_helper::usage();
+    println!();
+    volume_helper::usage();
+    println!();
+    system_helper::usage();
+    println!();
+    ots_helper::usage();
+}
+
