@@ -8,14 +8,23 @@ pub mod ots_helper;
 pub mod ports;
 pub mod volume_helper;
 pub mod system_helper;
+pub mod command_executor;
 
-
+#[warn(unused_imports)]
 fn main() ->() {
     let args: Vec<String> = env::args().collect();
+    
+    // let args: Vec<String> = vec!["dk", "im", "rm", "4","ed8"]
+    // .into_iter()
+    // .map(String::from)
+    // .collect();
+
+    
     if args.len() == 1 {
         show_usage();
         std::process::exit(1);
     }
+    
     let command = args[1].as_str();
     let arguments = &args[2..];
     let mut exitcode=1;

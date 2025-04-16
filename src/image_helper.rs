@@ -4,6 +4,7 @@ use prettytable::{Attr, Cell, Row, Table, color, format};
 use std::env;
 use std::process::Command;
 use crate::dkutil::*;
+use crate::command_executor::*;
 
 
 
@@ -12,7 +13,7 @@ pub fn usage() {
     println!("{}", "IMAGES:".cyan());
     print_colored("(y) . dk im                (w): Show the list of images");
     print_colored("(y) . dk im rm (b)<images*>   (w): Show the list of images");
-    print_colored("(y) . dk im save (b)<images*> (w): Save the specified images");
+    print_colored("(y) . dk im save (b)<images*> (w): Delete the specified images");
     print_colored("(y) . dk im load (b)<file*>   (w): Load the specified image files");
     print_colored("(y) . dk im scan (b)<file*>   (w): Scan images for vulnerabilities");
 }
@@ -59,20 +60,25 @@ pub fn is_image_pulled(image_name: &str, tag: &str) -> bool {
 }
 
 /// Récupère la liste des images Docker en format structuré.
-pub fn get_images() -> Vec<Vec<String>> {
-    // Utilisation du format personnalisé de 'docker images'
-    let output = Command::new("docker")
-        .args(&[
-            "images",
-            "--format",
-            "{{.ID}}|{{.Repository}}|{{.Tag}}|{{.Size}}|{{.CreatedAt}}",
-        ])
-        .output()
-        .expect("Échec de 'docker images'");
-    let stdout = String::from_utf8_lossy(&output.stdout);
+pub fn get_images_with_executor<T: CommandExecutor>(executor: &T) -> Vec<Vec<String>> {
+//pub fn get_images() -> Vec<Vec<String>> {
+
+    let cmd = vec!["docker", "images", "--format", "{{.ID}}|{{.Repository}}|{{.Tag}}|{{.Size}}|{{.CreatedAt}}"];
+    let output = executor.execute(&cmd).unwrap_or_default();
+// // Utilisation du format personnalisé de 'docker images'
+//     let output = Command::new("docker")
+//         .args(&[
+//             "images",
+//             "--format",
+//             "{{.ID}}|{{.Repository}}|{{.Tag}}|{{.Size}}|{{.CreatedAt}}",
+//         ])
+//         .output()
+//         .expect("Échec de 'docker images'");
+//    let stdout = String::from_utf8_lossy(&output.stdout);
+    
     let mut table_data = Vec::new();
     let mut index = 1;
-    for line in stdout.lines() {
+    for line in output.lines() {
         let parts: Vec<&str> = line.split('|').collect();
         if parts.len() < 5 {
             continue;
@@ -182,12 +188,55 @@ pub fn cmd(arguments: &[String]) ->i32 {
     return 0;
 }
 
-fn remove(filters: &[String]) {
-    for image in filters {
-        print_info(&format!("Removing image {}", image));
-        print_and_run(&["docker", "rmi", image]);
+
+/// Translates filters to Docker image IDs.
+///
+/// # Arguments
+///
+/// * `filters` - A slice of strings that can be either image ranks or image IDs
+///
+/// # Returns
+///
+/// A vector of strings containing the actual Docker image IDs.
+///
+/// # Details
+///
+/// For each filter:
+/// - If the filter is a valid rank (numeric index), converts it to the corresponding image ID
+/// - If the filter is not a valid rank, assumes it's already an image ID and returns it as-is
+///
+/// Requires `get_images()` to retrieve the list of available Docker images.
+fn translate_to_id(filters: &[String]) -> Vec<String> {
+    let images = get_images();
+    let max_rank = images.iter().count();
+    
+    filters.iter().map(|f| {
+        if is_valid_rank(f, max_rank) {
+            let row = &images[f.parse::<usize>().unwrap() - 1];
+            row[1].clone()
+        } else {
+            f.to_string()
+        }
+    }).collect()
+}
+
+
+/// Remove a set of docker images
+///
+/// # Arguments
+///
+/// * `filters` - A slice of strings that can be either image ranks or image IDs
+///
+fn remove(filters: &[String])
+{
+    let image_ids = translate_to_id(filters);
+    
+    for image_id in image_ids {
+        print_info(&format!("Removing image {}", image_id));
+        print_and_run(&["docker", "rmi", &image_id]);
     }
 }
+
 
 fn save(filters: &[String]) {
     for image in filters {
