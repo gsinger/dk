@@ -9,15 +9,16 @@ pub mod ports;
 pub mod volume_helper;
 pub mod system_helper;
 pub mod command_executor;
+pub mod config;
 
 #[warn(unused_imports)]
 fn main() ->() {
     let args: Vec<String> = env::args().collect();
     
-    // let args: Vec<String> = vec!["dk", "im", "rm", "4","ed8"]
-    // .into_iter()
-    // .map(String::from)
-    // .collect();
+    //  let args: Vec<String> = vec!["dk", "im"]
+    //  .into_iter()
+    //  .map(String::from)
+    //  .collect();
 
     
     if args.len() == 1 {
@@ -58,24 +59,25 @@ fn main() ->() {
         "sys" => {
             exitcode=system_helper::cmd(arguments);
         }
-        "otsup" => {
-            if arguments.is_empty() {
-                println!("Error: 'otsup' command requires at least one container");
-            } else {
-                ots_helper::up(arguments);
-                container_helper::show();
-                exitcode=0;
-            }
-        }
-        "otsdown" => {
-            if arguments.is_empty() {
-                println!("Error: 'otsdown' command requires at least one container");
-            } else {
-                ots_helper::down(arguments);
-                container_helper::show();
-                exitcode=0;
-            }
-        }
+
+        // "otsup" => {
+        //     if arguments.is_empty() {
+        //         println!("Error: 'otsup' command requires at least one container");
+        //     } else {
+        //         ots_helper::up(arguments);
+        //         container_helper::show();
+        //         exitcode=0;
+        //     }
+        // }
+        // "otsdown" => {
+        //     if arguments.is_empty() {
+        //         println!("Error: 'otsdown' command requires at least one container");
+        //     } else {
+        //         ots_helper::down(arguments);
+        //         container_helper::show();
+        //         exitcode=0;
+        //     }
+        // }
         
         "vol" => {
             volume_helper::cmd(arguments);

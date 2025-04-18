@@ -61,20 +61,10 @@ pub fn is_image_pulled(image_name: &str, tag: &str) -> bool {
 
 /// Récupère la liste des images Docker en format structuré.
 pub fn get_images_with_executor<T: CommandExecutor>(executor: &T) -> Vec<Vec<String>> {
-//pub fn get_images() -> Vec<Vec<String>> {
+
 
     let cmd = vec!["docker", "images", "--format", "{{.ID}}|{{.Repository}}|{{.Tag}}|{{.Size}}|{{.CreatedAt}}"];
     let output = executor.execute(&cmd).unwrap_or_default();
-// // Utilisation du format personnalisé de 'docker images'
-//     let output = Command::new("docker")
-//         .args(&[
-//             "images",
-//             "--format",
-//             "{{.ID}}|{{.Repository}}|{{.Tag}}|{{.Size}}|{{.CreatedAt}}",
-//         ])
-//         .output()
-//         .expect("Échec de 'docker images'");
-//    let stdout = String::from_utf8_lossy(&output.stdout);
     
     let mut table_data = Vec::new();
     let mut index = 1;
@@ -94,6 +84,10 @@ pub fn get_images_with_executor<T: CommandExecutor>(executor: &T) -> Vec<Vec<Str
         index += 1;
     }
     table_data
+}
+
+pub fn get_images() -> Vec<Vec<String>> {
+    get_images_with_executor(&RealCommandExecutor)
 }
 
 /// Affiche la liste des images dans un format tabulaire.
@@ -286,3 +280,7 @@ fn save_one(name: &str, tag: &str, path: Option<&str>) {
     // À implémenter : appeler "docker save" et compresser
     print_and_run(&["docker", "save", &full_image_name, "-o", &filename]);
 }
+
+
+
+
