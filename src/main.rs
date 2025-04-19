@@ -60,24 +60,11 @@ fn main() ->() {
             exitcode=system_helper::cmd(arguments);
         }
 
-        // "otsup" => {
-        //     if arguments.is_empty() {
-        //         println!("Error: 'otsup' command requires at least one container");
-        //     } else {
-        //         ots_helper::up(arguments);
-        //         container_helper::show();
-        //         exitcode=0;
-        //     }
-        // }
-        // "otsdown" => {
-        //     if arguments.is_empty() {
-        //         println!("Error: 'otsdown' command requires at least one container");
-        //     } else {
-        //         ots_helper::down(arguments);
-        //         container_helper::show();
-        //         exitcode=0;
-        //     }
-        // }
+        "ots" => {
+            exitcode = ots_helper::cmd(arguments);
+        }
+
+
         
         "vol" => {
             volume_helper::cmd(arguments);

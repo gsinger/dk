@@ -6,8 +6,8 @@ use crate::config::*;
 pub fn usage() {
     let _config=get_config();
     println!("{}", "OTS:".cyan());
-    print_colored("(y) . otsup (b)<image>       (w): Create and run a container based on the specified image");    
-    print_colored("(y) . otsdown (b)<image>     (w): Delete the specified container");
+    print_colored("(y) . ots up (b)<image>       (w): Create and run a container based on the specified image");    
+    print_colored("(y) . ots down (b)<image>     (w): Delete the specified container");
 
     let mut ots_list = String::new();
     for c in _config.ots {
@@ -15,13 +15,74 @@ pub fn usage() {
         ots_list.push_str("|");
     }
     ots_list.pop();
-    let ots=format!("(y) The supported ots are (w): (b){} (w)(see ~/.dk.dk_config.json)",ots_list);
+    let ots=format!("(y) The supported ots are  (w): (b){}",ots_list);
+
     print_colored(&ots);
+    print_colored("                         (y) (see ~/.dk.dk_config.json)");
 }
 
-fn get_config() -> DkConfig {
+pub fn cmd(arguments: &[String]) -> i32 {
+    if arguments.is_empty() {
+        usage();
+        return 0;
+    }
+    let command = &arguments[0];
+    match command.as_str() {
+        "up" => up_container(&arguments[1..]),
+        "down" => down_container(&arguments[1..]),
+        _ => print_error("unknown command"),
+    }
+    return 0;
+}
 
-   
+fn down_container(arguments: &[String])
+{
+    if arguments.is_empty() {
+        print_error("Error: 'up' command requires at least one container");
+        return;
+    }
+    let config=get_config();
+    for arg in arguments {
+        let mut found = false;
+        for c in &config.ots {
+            if c.name == *arg {
+                found = true;
+                let name = format!("ots_{}", c.name);
+                print_info(&format!("Stopping and removing container {}", name));
+                print_and_run(&["docker", "rm", "-f", &name]);
+            }
+        }
+        if !found {
+            print_error(&format!("Container {} not found", arg));
+        }
+    }
+}
+
+fn up_container(arguments: &[String]) {
+    if arguments.is_empty() {
+        print_error("Error: 'up' command requires at least one container");
+        return;
+    }
+    let config=get_config();
+    for arg in arguments {
+        let mut found = false;
+        for c in &config.ots {
+            if c.name == *arg {
+                found = true;
+                print_info(&format!("Starting container {}", c.name));
+                let cmd: Vec<&str> = c.command_line.split_whitespace().collect();
+                print_and_run(&cmd);
+            }
+        }
+        if !found {
+            print_error(&format!("Container {} not found", arg));
+        }
+    }
+}
+
+
+
+fn get_config() -> DkConfig {
     // Charger la configuration depuis le fichier
     match DkConfig::load_from_file() {
         Ok(config) => {
@@ -34,100 +95,7 @@ fn get_config() -> DkConfig {
 }
 
 
-// pub fn down(images: &[String]) {
-//     for im in images {
-//         let container_name = format!("ots_{}", im);
-//         print_info(&format!("Removing container {}", container_name));
-//         print_and_run(&["docker", "rm", "-f", &container_name]);
-//     }
-// }
 
-//             "dashy" => {
-//                 let image = "lissy93/dashy:latest";
-//                 image_helper::pull_image(image);
-//                 print_info(&format!("Starting dashy (port={})", DASHY));
-//                 let root_path = env::current_dir().unwrap();
-//                 let vol = format!(
-//                     "{}/dk-compose/dashy/config.yml",
-//                     root_path.to_str().unwrap()
-//                 );
-//                 print_and_run(&[
-//                     "docker",
-//                     "run",
-//                     "-d",
-//                     "-v",
-//                     &format!("{}:/app/user-data/conf.yml", vol),
-//                     "--name",
-//                     "ots_dashy",
-//                     "--restart",
-//                     "always",
-//                     "--network",
-//                     "host",
-//                     "--restart",
-//                     "unless-stopped",
-//                     image,
-//                 ]);
-//             }
-//             "portainer" => {
-//                 let image = "portainer/portainer-ce:latest";
-//                 image_helper::pull_image(image);
-//                 print_info(&format!("Starting portainer (port={})", PORTAINER));
-//                 print_and_run(&[
-//                     "docker",
-//                     "run",
-//                     "-d",
-//                     "--name",
-//                     "ots_portainer",
-//                     "-p",
-//                     &format!("{}:9000", PORTAINER),
-//                     "-p",
-//                     "25003:9443",
-//                     "-v",
-//                     "/var/run/docker.sock:/var/run/docker.sock",
-//                     "-v",
-//                     "portainer_data:/data",
-//                     "--restart",
-//                     "unless-stopped",
-//                     image,
-//                 ]);
-//             }
-//             "kroki" => {
-//                 let image = "yuzutech/kroki";
-//                 image_helper::pull_image(image);
-//                 print_info(&format!("Starting kroki (http://localhost:{})", KROKI));
-//                 print_and_run(&[
-//                     "docker",
-//                     "run",
-//                     "-d",
-//                     "--name",
-//                     "ots_kroki",
-//                     "--restart",
-//                     "unless-stopped",
-//                     "-p",
-//                     &format!("{}:8000", KROKI),
-//                     image,
-//                 ]);
-//             }
-//             "excalidraw" => {
-//                 let image = "excalidraw/excalidraw:latest";
-//                 image_helper::pull_image(image);
-//                 print_info(&format!(
-//                     "Starting excalidraw (http://localhost:{})",
-//                     EXCALIDRAW
-//                 ));
-//                 print_and_run(&[
-//                     "docker",
-//                     "run",
-//                     "-d",
-//                     "--name",
-//                     "ots_excalidraw",
-//                     "--restart",
-//                     "unless-stopped",
-//                     "-p",
-//                     &format!("{}:80", EXCALIDRAW),
-//                     image,
-//                 ]);
-//             }
 //             "glances" => {
 //                 let image = "nicolargo/glances:latest";
 //                 image_helper::pull_image(image);
@@ -158,28 +126,7 @@ fn get_config() -> DkConfig {
 //                     image,
 //                 ]);
 //             }
-//             "rabbitmq" => {
-//                 let image = "rabbitmq:3.12-management-alpine";
-//                 image_helper::pull_image(image);
-//                 print_info("Starting rabbitmq (http://localhost:15672)");
-//                 print_and_run(&[
-//                     "docker",
-//                     "run",
-//                     "-d",
-//                     "--name",
-//                     "ots_rabbitmq",
-//                     "--restart",
-//                     "unless-stopped",
-//                     "-p",
-//                     "15672:15672",
-//                     "-p",
-//                     "5672:5672",
-//                     "--mount",
-//                     "type=volume,src=ots_rabbitmq,dst=/var/lib/rabbitmq",
-//                     "--restart",
-//                     "always",
-//                     image,
-//                 ]);
+//            
 //             }
 //             "doku" => {
 //                 let image = "amerkurev/doku";

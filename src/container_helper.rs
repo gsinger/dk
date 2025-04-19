@@ -96,7 +96,7 @@ pub fn remove(filters: &[String]) -> i32 {
             print_error(&format!("Error removing container {}", f));    
         }
     }
-    return 0;
+    retcode
 }
 
 
