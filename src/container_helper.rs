@@ -87,9 +87,12 @@ pub fn show()  {
 
 pub fn remove(filters: &[String]) -> i32 {
     let mut retcode=0;
-    for f  in filters {
+    let ids = translate_to_id(filters);
+
+
+    for f  in ids {
         print_info(&format!("Removing container {}", f));
-        let i= print_and_run(&["docker", "rm", "-f", f]);
+        let i= print_and_run(&["docker", "rm", "-f", &f]);
     
         if i != 0 {
             retcode = i;
@@ -100,9 +103,22 @@ pub fn remove(filters: &[String]) -> i32 {
 }
 
 
-
-
 pub fn exec_shell(container: &str) -> i32 {
     print_info(&format!("Executing shell in container {}", container));
     return print_and_run(&["docker", "exec", "-it", container, "/bin/bash"]);
+}
+
+
+fn translate_to_id(filters: &[String]) -> Vec<String> {
+    let containers = get_containers();
+    let max_rank = containers.iter().count();
+    
+    filters.iter().map(|f| {
+        if is_valid_rank(f, max_rank) {
+            let row = &containers[f.parse::<usize>().unwrap() - 1];
+            row[1].clone()
+        } else {
+            f.to_string()
+        }
+    }).collect()
 }

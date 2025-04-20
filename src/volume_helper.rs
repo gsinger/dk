@@ -4,19 +4,11 @@ use crate::dkutil::*;
 
 
 pub fn usage() {
-    print_info("VOLUMES:");
-    println!(
-        "{}",
-        "  . dk vol                  : Show the list of volumes".yellow()
-    );
-    println!(
-        "{}",
-        "  . dk vol prune            : Delete all unused volumes".yellow()
-    );
-    println!(
-        "{}",
-        "  . dk vol rm <volume*>     : Remove specified volumes".yellow()
-    );
+    
+    println!("{}", "VOLUMES:".cyan());
+    print_colored("(y) . dk vol              (w): Show state of the containers");
+    print_colored("(y) . dk vol prune        (w): Delete all unused volumes");
+    print_colored("(y) . dk vol rm (b)<volume*> (w): Delete specified volumes");
 }
 
 pub fn get_volumes() -> Vec<Vec<String>> {
@@ -61,8 +53,24 @@ pub fn cmd(arguments: &[String]) {
 }
 
 fn rm(filters: &[String]) {
-    for f in filters {
-        print_info(&format!("Removing volume {}", f));
-        print_and_run(&["docker", "volume", "rm", f]);
+    let volumes = translate_to_id(filters);
+    for v in volumes {
+        print_info(&format!("Removing volume {}", v));
+        print_and_run(&["docker", "volume", "rm", &v]);
     }
+}
+
+
+fn translate_to_id(filters: &[String]) -> Vec<String> {
+    let volumes = get_volumes();
+    let max_rank = volumes.iter().count();
+    
+    filters.iter().map(|f| {
+        if is_valid_rank(f, max_rank) {
+            let row = &volumes[f.parse::<usize>().unwrap() - 1];
+            row[1].clone()
+        } else {
+            f.to_string()
+        }
+    }).collect()
 }

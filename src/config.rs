@@ -113,7 +113,41 @@ impl DkConfig {
                         --mount type=volume,src=ots_rabbitmq,dst=/var/lib/rabbitmq
                         --restart unless-stopped \
                         rabbitmq:4.1.0-management")
+                },
+                Ots {
+                    name: String::from("ctop"),
+                    port: 0,
+                    command_line: String::from(
+                        "docker run -d \
+                        --name ots_ctop \
+                        -it --rm --volume /var/run/docker.sock:/var/run/docker.sock \
+                        quay.io/vektorlab/ctop:latest")
 
+                },
+                Ots {
+                    name: String::from("doku"),
+                    port: 25004,
+                    command_line: String::from(
+                        "docker run -d \
+                        -it \
+                        -v /var/run/docker.sock:/var/run/docker.sock:ro \
+                        -v /:/hostroot:ro \
+                        --name ots_doku \
+                        -p 25004:9090 \
+                        --restart unless-stopped \
+                        amerkurev/doku")
+                },
+                Ots {
+                    name: String::from("dozzle"),
+                    port: 25006,
+                    command_line: String::from(
+                        "docker run -d \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        -e DOZZLE_LEVEL=Debug \
+                        --name ots_doku \
+                        -p 25006:8080 \
+                        --restart unless-stopped \
+                        amir20/dozzle")
                 }
             ],
         };

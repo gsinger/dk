@@ -127,43 +127,7 @@ fn get_config() -> DkConfig {
 //                 ]);
 //             }
 //            
-//             }
-//             "doku" => {
-//                 let image = "amerkurev/doku";
-//                 image_helper::pull_image(image);
-//                 print_info(&format!("Starting doku (http://localhost:{})", DOKU));
-//                 print_and_run(&[
-//                     "docker",
-//                     "run",
-//                     "--name",
-//                     "ots_doku",
-//                     "--restart",
-//                     "unless-stopped",
-//                     "-it",
-//                     "-d",
-//                     "-v",
-//                     "/var/run/docker.sock:/var/run/docker.sock:ro",
-//                     "-v",
-//                     "/:/hostroot:ro",
-//                     "-p",
-//                     &format!("{}:9090", DOKU),
-//                     image,
-//                 ]);
-//             }
-//             "ctop" => {
-//                 let image = "quay.io/vektorlab/ctop:latest";
-//                 image_helper::pull_image(image);
-//                 print_and_run(&[
-//                     "docker",
-//                     "run",
-//                     "--name",
-//                     "ots_ctop",
-//                     "-it",
-//                     "--rm",
-//                     "--volume",
-//                     "/var/run/docker.sock:/var/run/docker.sock",
-//                     image,
-//                 ]);
+
 //             }
 //             "cadvisor" => {
 //                 let image = "gcr.io/cadvisor/cadvisor";

@@ -7,19 +7,11 @@ use crate::image_helper;
 
 
 pub fn usage() {
-    print_info("SYSTEM:");
-    println!(
-        "{}",
-        "  . dk sys show     : Show extended information".yellow()
-    );
-    println!(
-        "{}",
-        "  . dk sys prune    : Delete unused data (containers, images, volumes, build cache)".yellow()
-    );
-    println!(
-        "{}",
-        "  . dk sys size     : Show data size (docker system df)".yellow()
-    );
+    println!("{}", "SYSTEM:".cyan());
+    print_colored("(y) . dk sys show         (w): Show extended information");
+    print_colored("(y) . dk sys prune        (w): Delete unused data (containers, images, volumes, build cache)");
+    print_colored("(y) . dk sys size         (w): Show data size (docker system df)");
+   
 }
 
 pub fn cmd(arguments: &[String]) ->i32 {
@@ -39,10 +31,13 @@ pub fn cmd(arguments: &[String]) ->i32 {
 }
 
 pub fn show() {
-    image_helper::show();
-    println!();
+    println!("{}", "VOLUMES:".cyan());
     volume_helper::show();
     println!();
+    println!("{}", "IMAGES:".cyan());
+    image_helper::show();
+    println!();
+    println!("{}", "CONTAINERS:".cyan());    
     container_helper::show();
 }
 
