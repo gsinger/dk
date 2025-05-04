@@ -207,7 +207,7 @@ fn translate_to_id(filters: &[String]) -> Vec<String> {
     filters.iter().map(|f| {
         if is_valid_rank(f, max_rank) {
             let row = &images[f.parse::<usize>().unwrap() - 1];
-            row[1].clone()
+            row[2].as_str().to_owned() + ":" + row[3].as_str()
         } else {
             f.to_string()
         }
@@ -233,11 +233,14 @@ fn remove(filters: &[String])
 
 
 fn save(filters: &[String]) {
-    for image in filters {
+    let images = translate_to_id(filters);
+    for image in images {
         print_info(&format!("Saving image {}", image));
+        let mut imagefile=image.replace(":","..");
+        imagefile=imagefile.replace("/","_");
         // À implémenter : utiliser "docker save" puis compresser en gzip.
         // Pour l'instant, on se contente d'afficher la commande.
-        print_and_run(&["docker", "save", image, "-o", &format!("{}.tar", image)]);
+        print_and_run(&["docker", "save", &image, "-o", &format!("{}.tar", imagefile)]);
     }
 }
 

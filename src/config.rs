@@ -104,13 +104,13 @@ impl DkConfig {
                 },
                 Ots {
                     name: String::from("rabbitmq"),
-                    port: 25101,
+                    port: 15672,
                     command_line: String::from(
                         "docker run -d \
                         --name ots_rabbitmq \
                         -p 15672:15672 \
                         -p 5672:5672 \
-                        --mount type=volume,src=ots_rabbitmq,dst=/var/lib/rabbitmq
+                        --mount type=volume,src=ots_rabbitmq,dst=/var/lib/rabbitmq \
                         --restart unless-stopped \
                         rabbitmq:4.1.0-management")
                 },

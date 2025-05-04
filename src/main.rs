@@ -1,6 +1,6 @@
 use colored::*;
 use std::env;
-
+use rustc_version::*;
 pub mod container_helper;
 pub mod dkutil;
 pub mod image_helper;
@@ -15,7 +15,7 @@ pub mod config;
 fn main() ->() {
     let args: Vec<String> = env::args().collect();
     
-    //  let args: Vec<String> = vec!["dk", "im"]
+    //  let args: Vec<String> = vec!["dk", "im","save","6"]
     //  .into_iter()
     //  .map(String::from)
     //  .collect();
@@ -83,7 +83,9 @@ fn main() ->() {
 
 
 fn show_usage() {
-    println!("{}",  "dk version 4.4 - G. Singer 2018-2025".bright_magenta() );
+    let version = version().unwrap();
+    let usage=format!("dk version 4.4 - G. Singer 2018-2025 (built with Rust {})",version);
+    println!("{}", usage.bright_magenta() );
     
     container_helper::usage();
     println!();
